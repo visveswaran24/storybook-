@@ -3,8 +3,8 @@ import type { ComponentType, ReactElement } from 'react';
 export type { RenderContext } from '@storybook/store';
 export type { StoryContext } from '@storybook/csf';
 
-export type ReactFramework = {
-  component: ComponentType<any>;
+export type ReactFramework<CmpArgs = any> = {
+  component: ComponentType<CmpArgs>;
   storyResult: StoryFnReactReturnType;
 };
 
