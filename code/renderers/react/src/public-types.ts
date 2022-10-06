@@ -7,7 +7,7 @@ import type {
   DecoratorFunction,
   LoaderFunction,
 } from '@storybook/csf';
-import { ComponentType, JSXElementConstructor } from 'react';
+import { ComponentProps, ComponentType, JSXElementConstructor } from 'react';
 import { ReactFramework } from './types';
 
 type JSXElement = keyof JSX.IntrinsicElements | JSXElementConstructor<any>;
@@ -59,3 +59,57 @@ type SetOptional<T, K> = {
 } & {
   [P in keyof T as P extends K ? never : P]: T[P];
 };
+
+/**
+ * @deprecated
+ * For the common case where a component's stories are simple components that receives args as props:
+ *
+ * ```tsx
+ * export default { ... } as ComponentMeta<typeof Button>;
+ * ```
+ */
+export type ComponentMeta<T extends JSXElement> = Meta<ComponentProps<T>>;
+
+/**
+ * @deprecated
+ * For the common case where a (CSFv2) story is a simple component that receives args as props:
+ *
+ * ```tsx
+ * const Template: ComponentStoryFn<typeof Button> = (args) => <Button {...args} />
+ * ```
+ */
+export type ComponentStoryFn<T extends JSXElement> = StoryFn<ComponentProps<T>>;
+
+/**
+ * @deprecated
+ * For the common case where a (CSFv3) story is a simple component that receives args as props:
+ *
+ * ```tsx
+ * const MyStory: ComponentStoryObj<typeof Button> = {
+ *   args: { buttonArg1: 'val' },
+ * }
+ * ```
+ */
+export type ComponentStoryObj<T extends JSXElement> = StoryObj<ComponentProps<T>>;
+
+/**
+
+ /**
+ * @deprecated
+ * Story function that represents a CSFv3 component example.
+ *
+ * @see [Named Story exports](https://storybook.js.org/docs/formats/component-story-format/#named-story-exports)
+ */
+export type Story<TArgs = Args> = StoryFn<TArgs>;
+
+/**
+ * @deprecated
+ * For the common case where a (CSFv3) story is a simple component that receives args as props:
+ *
+ * ```tsx
+ * const MyStory: ComponentStory<typeof Button> = {
+ *   args: { buttonArg1: 'val' },
+ * }
+ * ```
+ */
+export type ComponentStory<T extends JSXElement> = ComponentStoryObj<T>;
