@@ -1,7 +1,14 @@
-import { AnnotatedStoryFn, Args, ComponentAnnotations, StoryAnnotations } from '@storybook/csf';
+import type {
+  AnnotatedStoryFn,
+  Args,
+  ComponentAnnotations,
+  StoryAnnotations,
+  ArgsStoryFn,
+  DecoratorFunction,
+  LoaderFunction,
+} from '@storybook/csf';
 import { ComponentType, JSXElementConstructor } from 'react';
 import { ReactFramework } from './types';
-import { ArgsStoryFn, DecoratorFunction } from '../../../../../csf/src';
 
 type JSXElement = keyof JSX.IntrinsicElements | JSXElementConstructor<any>;
 
@@ -10,12 +17,9 @@ type JSXElement = keyof JSX.IntrinsicElements | JSXElementConstructor<any>;
  *
  * @see [Default export](https://storybook.js.org/docs/formats/component-story-format/#default-export)
  */
-export type Meta<
-  CmpOrArgs = Args,
-  StoryArgs = CmpOrArgs extends ComponentType<infer CmpArgs> ? CmpArgs : CmpOrArgs
-> = CmpOrArgs extends ComponentType<infer CmpArgs>
-  ? ComponentAnnotations<ReactFramework<CmpArgs>, StoryArgs>
-  : ComponentAnnotations<ReactFramework<CmpOrArgs>, StoryArgs>;
+export type Meta<CmpOrArgs = Args> = CmpOrArgs extends ComponentType<infer CmpArgs>
+  ? ComponentAnnotations<ReactFramework, CmpArgs>
+  : ComponentAnnotations<ReactFramework, CmpOrArgs>;
 
 /**
  * Story function that represents a CSFv2 component example.
@@ -29,23 +33,29 @@ export type StoryFn<TArgs = Args> = AnnotatedStoryFn<ReactFramework, TArgs>;
  *
  * @see [Named Story exports](https://storybook.js.org/docs/formats/component-story-format/#named-story-exports)
  */
+
 export type StoryObj<MetaOrArgs = Args> = MetaOrArgs extends {
-  render?: ArgsStoryFn<ReactFramework, infer StoryArgs>;
-  decorators?: DecoratorFunction<ReactFramework, infer StoryArgs>[];
+  render?: ArgsStoryFn<ReactFramework, infer RArgs>;
+  decorators?: DecoratorFunction<ReactFramework, infer DArgs>[];
   component?: ComponentType<infer CmpArgs>;
-  args?: infer D;
+  loaders?: LoaderFunction<ReactFramework, infer LArgs>[];
+  args?: infer DefaultArgs;
 }
-  ? (unknown extends StoryArgs ? CmpArgs : StoryArgs) extends infer Args
-    ? StoryAnnotations<ReactFramework<CmpArgs>, Args> & StrictStoryArgs<Args, D>
+  ? CmpArgs & RArgs & DArgs & LArgs extends infer Args
+    ? StoryAnnotations<
+        ReactFramework,
+        Args,
+        SetOptional<Args, keyof (DefaultArgs & ActionArgs<Args>)>
+      >
     : never
   : StoryAnnotations<ReactFramework, MetaOrArgs>;
-
-type StrictStoryArgs<Args, D> = {} extends MakeOptional<Args, D & ActionArgs<Args>>
-  ? { args?: Partial<Args> }
-  : { args: MakeOptional<Args, D & ActionArgs<Args>> };
 
 type ActionArgs<Args> = {
   [P in keyof Args as ((...args: any[]) => void) extends Args[P] ? P : never]: Args[P];
 };
 
-type MakeOptional<T, O> = Omit<T, keyof O> & Partial<Pick<T, Extract<keyof T, keyof O>>>;
+type SetOptional<T, K> = {
+  [P in keyof T as P extends K ? P : never]?: T[P];
+} & {
+  [P in keyof T as P extends K ? never : P]: T[P];
+};

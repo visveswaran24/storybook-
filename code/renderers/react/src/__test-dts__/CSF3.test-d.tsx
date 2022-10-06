@@ -85,9 +85,8 @@ describe('Story args can be inferred', () => {
 
     const meta = satisfies<Meta<Props>>()({
       component: Button,
-      args: { label: 'good', disabled: false },
+      args: { disabled: false },
       render: (args, { component }) => {
-        // TODO: Might be nice if we can infer that.
         // component is not null as it is provided in meta
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const Component = component!;
@@ -99,28 +98,51 @@ describe('Story args can be inferred', () => {
       },
     });
 
-    const Basic: StoryObj<typeof meta> = { args: { theme: 'light' } };
+    const Basic: StoryObj<typeof meta> = { args: { theme: 'light', label: 'good' } };
   });
+
+  const withDecorator: DecoratorFn<{ decoratorArg: number }> = (Story, { args }) => (
+    <>
+      Decorator: {args.decoratorArg}
+      <Story args={{ decoratorArg: 0 }} />
+    </>
+  );
 
   test('Correct args are inferred when type is widened for decorators', () => {
     type Props = ButtonProps & { decoratorArg: number };
 
-    const withDecorator: DecoratorFn<{ decoratorArg: number }> = (Story, { args }) => (
-      <>
-        Decorator: {args.decoratorArg}
-        This Story allows optional TArgs, but the decorator only knows about the decoratorArg. It
-        should really allow optionally a Partial of TArgs.
-        <Story args={{ decoratorArg: 0 }} />
-      </>
-    );
-
     const meta = satisfies<Meta<Props>>()({
       component: Button,
-      args: { label: 'good', disabled: false },
+      args: { disabled: false },
       decorators: [withDecorator],
     });
 
     // Yes, decorator arg is required
-    const Basic: StoryObj<typeof meta> = { args: { decoratorArg: 0 } };
+    const Basic: StoryObj<typeof meta> = { args: { decoratorArg: 0, label: 'good' } };
+  });
+
+  test('Correct args are inferred when type is widened for decorators and render functions', () => {
+    type Props = ButtonProps & { decoratorArg: number } & { theme: ThemeData };
+
+    const meta = satisfies<Meta<Props>>()({
+      component: Button,
+      args: { disabled: false },
+      decorators: [withDecorator],
+      loaders: [async ({ args }: { args: { label: string } }) => ({ data: args.label })],
+      render: (args, { component }) => {
+        // component is not null as it is provided in meta
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const Component = component!;
+        return (
+          <Theme theme={args.theme}>
+            <Component {...args} />
+          </Theme>
+        );
+      },
+    });
+
+    const Basic: StoryObj<typeof meta> = {
+      args: { decoratorArg: 0, label: 'good', theme: 'light' },
+    };
   });
 });
