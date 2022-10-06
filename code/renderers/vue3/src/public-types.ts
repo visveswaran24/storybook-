@@ -1,27 +1,12 @@
-import type { ComponentOptionsBase } from 'vue';
 import type {
-  AnnotatedStoryFn,
   Args,
   ComponentAnnotations,
   StoryAnnotations,
+  AnnotatedStoryFn,
 } from '@storybook/csf';
 import { VueFramework } from './types';
 
 export type { Args, ArgTypes, Parameters, StoryContext } from '@storybook/csf';
-
-// TODO
-export type PropsOf<T> = T extends ComponentOptionsBase<
-  infer Props,
-  any,
-  any,
-  any,
-  any,
-  any,
-  any,
-  any
->
-  ? Props
-  : never;
 
 /**
  * Metadata to configure the stories for a component.
