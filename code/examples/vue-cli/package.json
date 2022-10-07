@@ -23,6 +23,7 @@
     "@vue/cli-plugin-babel": "^5.0.4",
     "@vue/cli-plugin-typescript": "^5.0.4",
     "@vue/cli-service": "^5.0.4",
+    "sass-loader": "^12.6.0",
     "storybook": "7.0.0-alpha.35",
     "typescript": "~4.6.3",
     "vue-template-compiler": "^2.6.14"

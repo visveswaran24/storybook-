@@ -37773,6 +37773,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sass-loader@npm:^12.6.0":
+  version: 12.6.0
+  resolution: "sass-loader@npm:12.6.0"
+  dependencies:
+    klona: ^2.0.4
+    neo-async: ^2.6.2
+  peerDependencies:
+    fibers: ">= 3.1.0"
+    node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+    sass: ^1.3.0
+    sass-embedded: "*"
+    webpack: ^5.0.0
+  peerDependenciesMeta:
+    fibers:
+      optional: true
+    node-sass:
+      optional: true
+    sass:
+      optional: true
+    sass-embedded:
+      optional: true
+  checksum: e1ef655f3898cc4c45f02b3c627f8baf998139993a9a79c524153a80814282bfe20d8d8d703b8cf1d05457c1930940b65e2156d11285ed0861f9a1016f993e53
+  languageName: node
+  linkType: hard
+
 "sass@npm:1.49.9":
   version: 1.49.9
   resolution: "sass@npm:1.49.9"
@@ -42750,6 +42775,7 @@ __metadata:
     "@vue/cli-plugin-babel": ^5.0.4
     "@vue/cli-plugin-typescript": ^5.0.4
     "@vue/cli-service": ^5.0.4
+    sass-loader: ^12.6.0
     storybook: 7.0.0-alpha.35
     typescript: ~4.6.3
     vue: ^2.6.12
