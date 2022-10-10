@@ -66,7 +66,7 @@ type ActionArgs<Args> = {
 };
 
 /**
- * @deprecated
+ * @deprecated Use `Meta` instead.
  * For the common case where a component's stories are simple components that receives args as props:
  *
  * ```tsx
@@ -76,7 +76,6 @@ type ActionArgs<Args> = {
 export type ComponentMeta<T extends JSXElement> = Meta<ComponentProps<T>>;
 
 /**
- * @deprecated
  * For the common case where a (CSFv2) story is a simple component that receives args as props:
  *
  * ```tsx
@@ -86,7 +85,8 @@ export type ComponentMeta<T extends JSXElement> = Meta<ComponentProps<T>>;
 export type ComponentStoryFn<T extends JSXElement> = StoryFn<ComponentProps<T>>;
 
 /**
- * @deprecated
+ * @deprecated Use `StoryObj` instead.
+ *
  * For the common case where a (CSFv3) story is a simple component that receives args as props:
  *
  * ```tsx
@@ -100,7 +100,8 @@ export type ComponentStoryObj<T extends JSXElement> = StoryObj<ComponentProps<T>
 /**
 
  /**
- * @deprecated
+ * @deprecated Use `StoryObj` instead.
+ *
  * Story function that represents a CSFv3 component example.
  *
  * @see [Named Story exports](https://storybook.js.org/docs/formats/component-story-format/#named-story-exports)
@@ -108,7 +109,8 @@ export type ComponentStoryObj<T extends JSXElement> = StoryObj<ComponentProps<T>
 export type Story<TArgs = Args> = StoryFn<TArgs>;
 
 /**
- * @deprecated
+ * @deprecated Use StoryObj instead.
+ *
  * For the common case where a (CSFv3) story is a simple component that receives args as props:
  *
  * ```tsx

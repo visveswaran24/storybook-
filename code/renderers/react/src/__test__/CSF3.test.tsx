@@ -15,7 +15,7 @@ type ButtonProps = { label: string; disabled: boolean };
 const Button: (props: ButtonProps) => JSX.Element = () => <></>;
 
 describe('Args can be provided in multiple ways', () => {
-  test('✅All required args may be provided in meta', () => {
+  test('✅ All required args may be provided in meta', () => {
     const meta = satisfies<Meta<typeof Button>>()({
       component: Button,
       args: { label: 'good', disabled: false },
