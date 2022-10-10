@@ -1,6 +1,6 @@
-/// <reference types="@types/jest" />;
 import React, { KeyboardEventHandler, ReactNode } from 'react';
 import { expectTypeOf } from 'expect-type';
+import { describe, test } from '@jest/globals';
 import { StoryAnnotations } from '@storybook/csf';
 import { SetOptional } from 'type-fest';
 
