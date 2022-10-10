@@ -7,8 +7,11 @@ import type {
   DecoratorFunction,
   LoaderFunction,
 } from '@storybook/csf';
+import { UnionToIntersection, Simplify, SetOptional } from 'type-fest';
 import { ComponentProps, ComponentType, JSXElementConstructor } from 'react';
+
 import { ReactFramework } from './types';
+import { DecoratorFn } from './public-api';
 
 type JSXElement = keyof JSX.IntrinsicElements | JSXElementConstructor<any>;
 
@@ -36,28 +39,30 @@ export type StoryFn<TArgs = Args> = AnnotatedStoryFn<ReactFramework, TArgs>;
 
 export type StoryObj<MetaOrArgs = Args> = MetaOrArgs extends {
   render?: ArgsStoryFn<ReactFramework, infer RArgs>;
-  decorators?: DecoratorFunction<ReactFramework, infer DArgs>[];
   component?: ComponentType<infer CmpArgs>;
-  loaders?: LoaderFunction<ReactFramework, infer LArgs>[];
+  loaders?: (infer Loaders)[];
   args?: infer DefaultArgs;
+  decorators?: (infer Decorators)[];
 }
-  ? CmpArgs & RArgs & DArgs & LArgs extends infer Args
+  ? Simplify<CmpArgs & RArgs & DecoratorsArgs<Decorators> & LoaderArgs<Loaders>> extends infer TArgs
     ? StoryAnnotations<
         ReactFramework,
-        Args,
-        SetOptional<Args, keyof (DefaultArgs & ActionArgs<Args>)>
+        TArgs,
+        SetOptional<TArgs, Extract<keyof TArgs, keyof (DefaultArgs & ActionArgs<TArgs>)>>
       >
     : never
   : StoryAnnotations<ReactFramework, MetaOrArgs>;
 
+type DecoratorsArgs<Decorators> = UnionToIntersection<
+  Decorators extends DecoratorFn<infer Args> ? Args : unknown
+>;
+
+type LoaderArgs<Loaders> = UnionToIntersection<
+  Loaders extends LoaderFunction<ReactFramework, infer Args> ? Args : unknown
+>;
+
 type ActionArgs<Args> = {
   [P in keyof Args as ((...args: any[]) => void) extends Args[P] ? P : never]: Args[P];
-};
-
-type SetOptional<T, K> = {
-  [P in keyof T as P extends K ? P : never]?: T[P];
-} & {
-  [P in keyof T as P extends K ? never : P]: T[P];
 };
 
 /**

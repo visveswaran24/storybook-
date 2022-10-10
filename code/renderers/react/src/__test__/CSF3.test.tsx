@@ -1,8 +1,14 @@
-/* eslint-disable jest/expect-expect */
 import React, { KeyboardEventHandler, ReactNode } from 'react';
+import { expectTypeOf } from 'expect-type';
+import { StoryAnnotations } from '@storybook/csf';
+import { SetOptional } from 'type-fest';
+
 import { Meta, StoryObj } from '../public-types';
 import { DecoratorFn } from '../public-api';
-import { describe, satisfies, test } from './utils';
+import { satisfies } from './utils';
+import { ReactFramework } from '../types';
+
+type ReactStory<Args, RequiredArgs> = StoryAnnotations<ReactFramework, Args, RequiredArgs>;
 
 type ButtonProps = { label: string; disabled: boolean };
 const Button: (props: ButtonProps) => JSX.Element = () => <></>;
@@ -16,6 +22,10 @@ describe('Args can be provided in multiple ways', () => {
 
     type Story = StoryObj<typeof meta>;
     const Basic: Story = {};
+
+    expectTypeOf(Basic).toEqualTypeOf<
+      ReactStory<ButtonProps, SetOptional<ButtonProps, 'label' | 'disabled'>>
+    >();
   });
 
   test('✅ Required args may be provided partial in meta and the story', () => {
@@ -26,6 +36,9 @@ describe('Args can be provided in multiple ways', () => {
     const Basic: StoryObj<typeof meta> = {
       args: { disabled: false },
     };
+
+    type Expected = ReactStory<ButtonProps, SetOptional<ButtonProps, 'label'>>;
+    expectTypeOf(Basic).toEqualTypeOf<Expected>();
   });
 
   test('❌ The combined shape of meta args and story args must match the required args.', () => {
@@ -35,6 +48,9 @@ describe('Args can be provided in multiple ways', () => {
         // @ts-expect-error disabled not provided ❌
         args: { label: 'good' },
       };
+
+      type Expected = ReactStory<ButtonProps, ButtonProps>;
+      expectTypeOf(Basic).toEqualTypeOf<Expected>();
     }
     {
       const meta = satisfies<Meta<typeof Button>>()({
@@ -43,6 +59,9 @@ describe('Args can be provided in multiple ways', () => {
       });
       // @ts-expect-error disabled not provided ❌
       const Basic: StoryObj<typeof meta> = {};
+
+      type Expected = ReactStory<ButtonProps, SetOptional<ButtonProps, 'label'>>;
+      expectTypeOf(Basic).toEqualTypeOf<Expected>();
     }
     {
       const meta = satisfies<Meta<ButtonProps>>()({ component: Button });
@@ -50,6 +69,9 @@ describe('Args can be provided in multiple ways', () => {
         // @ts-expect-error disabled not provided ❌
         args: { label: 'good' },
       };
+
+      type Expected = ReactStory<ButtonProps, ButtonProps>;
+      expectTypeOf(Basic).toEqualTypeOf<Expected>();
     }
   });
 });
@@ -74,6 +96,12 @@ test('✅ All void functions are optional', () => {
   const Basic: StoryObj<typeof meta> = {
     args: { disabled: false, onLoading: () => <div>Loading...</div> },
   };
+
+  type Expected = ReactStory<
+    CmpProps,
+    SetOptional<CmpProps, 'label' | 'onClick' | 'onKeyDown' | 'submitAction'>
+  >;
+  expectTypeOf(Basic).toEqualTypeOf<Expected>();
 });
 
 type ThemeData = 'light' | 'dark';
@@ -99,6 +127,9 @@ describe('Story args can be inferred', () => {
     });
 
     const Basic: StoryObj<typeof meta> = { args: { theme: 'light', label: 'good' } };
+
+    type Expected = ReactStory<Props, SetOptional<Props, 'disabled'>>;
+    expectTypeOf(Basic).toEqualTypeOf<Expected>();
   });
 
   const withDecorator: DecoratorFn<{ decoratorArg: number }> = (Story, { args }) => (
@@ -117,32 +148,33 @@ describe('Story args can be inferred', () => {
       decorators: [withDecorator],
     });
 
-    // Yes, decorator arg is required
     const Basic: StoryObj<typeof meta> = { args: { decoratorArg: 0, label: 'good' } };
+
+    type Expected = ReactStory<Props, SetOptional<Props, 'disabled'>>;
+    expectTypeOf(Basic).toEqualTypeOf<Expected>();
   });
 
-  test('Correct args are inferred when type is widened for decorators and render functions', () => {
-    type Props = ButtonProps & { decoratorArg: number } & { theme: ThemeData };
+  test('Correct args are inferred when type is widened for multiple decorators', () => {
+    type Props = ButtonProps & { decoratorArg: number; decoratorArg2: string };
+
+    const secondDecorator: DecoratorFn<{ decoratorArg2: string }> = (Story, { args }) => (
+      <>
+        Decorator: {args.decoratorArg2}
+        <Story />
+      </>
+    );
 
     const meta = satisfies<Meta<Props>>()({
       component: Button,
       args: { disabled: false },
-      decorators: [withDecorator],
-      loaders: [async ({ args }: { args: { label: string } }) => ({ data: args.label })],
-      render: (args, { component }) => {
-        // component is not null as it is provided in meta
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const Component = component!;
-        return (
-          <Theme theme={args.theme}>
-            <Component {...args} />
-          </Theme>
-        );
-      },
+      decorators: [withDecorator, secondDecorator],
     });
 
     const Basic: StoryObj<typeof meta> = {
-      args: { decoratorArg: 0, label: 'good', theme: 'light' },
+      args: { decoratorArg: 0, decoratorArg2: '', label: 'good' },
     };
+
+    type Expected = ReactStory<Props, SetOptional<Props, 'disabled'>>;
+    expectTypeOf(Basic).toEqualTypeOf<Expected>();
   });
 });
