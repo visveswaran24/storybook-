@@ -1,3 +1,4 @@
+/// <reference types="@types/jest" />;
 import React, { KeyboardEventHandler, ReactNode } from 'react';
 import { expectTypeOf } from 'expect-type';
 import { StoryAnnotations } from '@storybook/csf';
